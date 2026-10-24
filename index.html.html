@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía del grupo de trabajo IA en la práctica docente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f4; --surface:#ffffff; --ink:#12222c; --muted:#4c5f6a; --line:#d3ddda;
+  --brand:#0f4c5c; --on-brand:#ffffff; --soft:#e4eeea; --warn:#8a4b00; --warnbg:#fff3dc;
+  --c-green:#0e7a4b; --c-blue:#2b6cb0; --c-ochre:#b7791f; --c-plum:#9a3b78; --c-teal:#14808a;
+  --head:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e191f; --surface:#15252d; --ink:#e8f0f2; --muted:#a2b5bd; --line:#2a414b;
+    --brand:#7cc4d4; --on-brand:#0b1a20; --soft:#1c3340; --warn:#ffd08a; --warnbg:#3a2c12;
+    --c-green:#3fc486; --c-blue:#6aa8e8; --c-ochre:#e0a742; --c-plum:#d77ab5; --c-teal:#4fc1cc;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e191f; --surface:#15252d; --ink:#e8f0f2; --muted:#a2b5bd; --line:#2a414b;
+  --brand:#7cc4d4; --on-brand:#0b1a20; --soft:#1c3340; --warn:#ffd08a; --warnbg:#3a2c12;
+  --c-green:#3fc486; --c-blue:#6aa8e8; --c-ochre:#e0a742; --c-plum:#d77ab5; --c-teal:#4fc1cc;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+#app{max-width:520px;margin:0 auto;padding:6px 20px 40px}
+h1,h2,h3{font-family:var(--head);font-weight:700;line-height:1.15;margin:0}
+h1{font-size:30px;letter-spacing:-.01em}
+h2{font-size:23px;margin:30px 0 12px}
+h3{font-size:18px}
+p{margin:0 0 12px}
+.sub{color:var(--muted);margin:6px 0 0;font-size:16px}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--brand)}
+:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px;border-radius:4px}
+.view{display:none}.view.on{display:block}
+
+/* mapa de rutas */
+ol.line{list-style:none;margin:0;padding:0 0 0 40px}
+ol.line>li{position:relative}
+ol.line>li::before{content:"";position:absolute;left:-26px;top:0;bottom:0;width:5px;background:var(--c)}
+ol.line>li:first-child::before{top:30px}
+ol.line>li:last-child::before{bottom:auto;height:30px}
+ol.line>li .dot{position:absolute;left:-35px;top:20px;width:23px;height:23px;border-radius:50%;background:var(--c);border:5px solid var(--bg);box-shadow:0 0 0 2px var(--c)}
+.route-btn{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:16px 0 16px 0;min-height:68px}
+ol.line>li:last-child .route-btn{border-bottom:0}
+.route-btn strong{display:block;font-family:var(--head);font-size:19px;font-weight:700;line-height:1.2}
+.route-btn span{display:block;color:var(--muted);font-size:15.5px;margin-top:3px}
+.route-btn em{font-style:normal;font-size:14.5px;color:var(--c);font-weight:700}
+
+/* detalle de ruta */
+.back{background:none;border:0;padding:8px 0;color:var(--brand);font-weight:700;margin-bottom:6px;min-height:44px}
+.rhead{border-left:6px solid var(--c);padding-left:14px;margin-bottom:6px}
+.progress{font-size:15px;color:var(--muted);margin:8px 0 18px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c);width:0;transition:width .25s}
+ol.steps{list-style:none;margin:0;padding:0 0 0 46px}
+ol.steps>li{position:relative;padding:0 0 22px}
+ol.steps>li::before{content:"";position:absolute;left:-30px;top:30px;bottom:-4px;width:4px;background:var(--c)}
+ol.steps>li:last-child::before{display:none}
+.check{position:absolute;left:-46px;top:0;width:36px;height:36px;border-radius:50%;border:3px solid var(--c);background:var(--bg);font-family:var(--head);font-weight:700;font-size:16px;color:var(--c);display:grid;place-items:center;padding:0}
+.check[aria-pressed="true"]{background:var(--c);color:var(--bg)}
+.check[aria-pressed="true"]::after{content:"✓";font-size:18px}
+.check[aria-pressed="true"] span{display:none}
+.step h3{margin:3px 0 4px}
+.step p{margin:0 0 8px;color:var(--ink)}
+.step.done h3{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:9px 16px;border-radius:10px;border:2px solid var(--brand);background:var(--brand);color:var(--on-brand);font-weight:700;text-decoration:none;font-size:16px}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn[disabled],.btn.off{opacity:.5;cursor:default}
+.pending{font-size:15px;color:var(--muted);font-style:italic}
+
+/* listas simples */
+dl.rows{margin:0}
+dl.rows>div{padding:12px 0;border-bottom:1px solid var(--line)}
+dl.rows dt{font-weight:700}
+dl.rows dd{margin:2px 0 0;color:var(--muted)}
+ul.links{list-style:none;margin:0;padding:0}
+ul.links li{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+
+/* conceptos */
+.search{width:100%;min-height:48px;padding:10px 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
+details.c{border-bottom:1px solid var(--line)}
+details.c>summary{list-style:none;cursor:pointer;padding:14px 28px 14px 0;position:relative;min-height:56px}
+details.c>summary::-webkit-details-marker{display:none}
+details.c>summary::after{content:"+";position:absolute;right:4px;top:12px;font-size:26px;font-family:var(--head);color:var(--brand)}
+details.c[open]>summary::after{content:"–"}
+details.c>summary strong{display:block;font-family:var(--head);font-size:19px;line-height:1.2}
+details.c>summary span{display:block;color:var(--muted);font-size:15.5px;margin-top:2px}
+.cbody{padding:2px 0 18px}
+.cbody ul{margin:0 0 12px;padding-left:20px}
+.ex{background:var(--soft);border-radius:10px;padding:12px 14px;font-size:16px;margin-top:6px}
+.grp{font-family:var(--head);font-size:21px;margin:28px 0 4px}
+.empty{color:var(--muted);padding:14px 0}
+
+/* generador */
+.needs{display:grid;gap:8px;margin:0 0 6px}
+.need{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 14px;min-height:60px}
+.need strong{display:block;font-size:17px}
+.need span{display:block;color:var(--muted);font-size:15px}
+.need[aria-pressed="true"]{border-color:var(--brand);background:var(--soft)}
+.field{margin:0 0 16px}
+.field label,.field .lab{display:block;font-weight:700;margin-bottom:4px}
+.field .hint{display:block;font-weight:400;color:var(--muted);font-size:15px}
+.field input[type=text],.field textarea{width:100%;padding:11px 13px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
+.field textarea{min-height:96px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 14px;border-radius:22px;border:2px solid var(--line);background:var(--surface);font-size:16px}
+.chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand);color:var(--on-brand);font-weight:700}
+.flag{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:9px 12px;font-size:15px;margin-top:6px}
+.flag[hidden]{display:none}
+.notice{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:12px 14px;font-size:16px;margin:0 0 16px}
+pre.out{white-space:pre-wrap;word-wrap:break-word;background:var(--surface);border:2px solid var(--brand);border-radius:12px;padding:14px;font-family:var(--body);font-size:16px;margin:0 0 12px;max-height:60vh;overflow:auto}
+.check-list{margin:10px 0 0;padding-left:20px;font-size:16px}
+.tool-note{font-size:15px;color:var(--muted)}
+
+/* dudas */
+.dq{border-bottom:1px solid var(--line);padding:16px 0}
+.dq .meta{font-size:14.5px;color:var(--muted);margin-bottom:4px}
+.dq .txt{white-space:pre-wrap;margin:0 0 8px}
+.badge{display:inline-block;font-size:13.5px;font-weight:700;padding:2px 9px;border-radius:12px;background:var(--soft);color:var(--brand);margin-right:6px}
+.badge.ok{background:var(--c-green);color:var(--bg)}
+.ans{border-left:4px solid var(--c-teal);padding:2px 0 2px 12px;margin:10px 0}
+.ans .meta{margin-bottom:0}
+.mini{background:none;border:0;color:var(--brand);font-weight:700;min-height:40px;padding:6px 10px 6px 0;font-size:15.5px}
+.reply{display:flex;gap:8px;margin-top:6px}
+.reply input{flex:1;min-height:46px;padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
+.counter{font-size:14px;color:var(--muted);text-align:right}
+
+/* pie y navegación */
+.lic{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted);line-height:1.45}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+/* barra superior con botón de inicio */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:40}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .in{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:8px 20px;min-height:64px}
+.homebtn{width:50px;height:50px;border-radius:16px;border:2px solid var(--brand);background:var(--surface);font-size:27px;line-height:1;display:grid;place-items:center;padding:0;flex:none}
+.homebtn[hidden]{display:none}
+.bartitle{font-family:var(--head);font-weight:700;font-size:21px;line-height:1.15}
+.view>h2:first-child{margin-top:18px}
+
+/* inicio */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.tile{text-align:left;border:2px solid var(--c);border-radius:20px;padding:14px;background:var(--soft);background:color-mix(in srgb,var(--c) 13%,var(--surface));min-height:142px;display:flex;flex-direction:column;gap:6px}
+.tile.wide{grid-column:1/-1;min-height:100px;flex-direction:row;align-items:center;gap:16px}
+.tile .em{font-style:normal;font-size:42px;line-height:1}
+.tile>div{display:flex;flex-direction:column;gap:3px}
+.tile strong{font-family:var(--head);font-size:20px;line-height:1.15}
+.tile .d{font-size:15px;color:var(--muted);line-height:1.3}
+
+/* herramientas */
+.tool{border-left:6px solid var(--c);padding:4px 0 6px 14px;margin:20px 0}
+.tool h3{display:flex;gap:10px;align-items:center;font-size:20px;margin-bottom:4px}
+.tool h3 em{font-style:normal;font-size:30px;line-height:1}
+.tool p{margin:0 0 8px}
+.ex p{margin:0 0 6px}.ex p:last-child{margin:0}
+ol.plain{margin:0 0 12px;padding-left:22px}
+ol.plain li{margin-bottom:6px}
+
+/* botones extra para volver al inicio */
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;width:60px;height:60px;border-radius:50%;border:3px solid var(--brand);background:var(--surface);font-size:30px;line-height:1;display:grid;place-items:center;padding:0;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.fab[hidden]{display:none}
+.endhome{margin:30px 0 0;text-align:center}
+.endhome[hidden]{display:none}
+.endhome .btn{font-size:18px;padding:13px 24px}
+</style>
+</head>
+<body>
+<header class="bar"><div class="in">
+  <button class="homebtn" id="homebtn" aria-label="Volver al inicio" hidden><span aria-hidden="true">🏠</span></button>
+  <div class="bartitle" id="bartitle">Guía del grupo</div>
+</div></header>
+
+<main id="app">
+  <section id="view-home" class="view on" aria-label="Inicio"></section>
+  <section id="view-rutas" class="view" aria-label="Rutas"></section>
+  <section id="view-ficha" class="view" aria-label="La ficha"></section>
+  <section id="view-prompts" class="view" aria-label="Generador de prompts"></section>
+  <section id="view-conceptos" class="view" aria-label="Conceptos"></section>
+  <section id="view-herramientas" class="view" aria-label="Herramientas"></section>
+  <section id="view-dudas" class="view" aria-label="Dudas del grupo"></section>
+  <section id="view-fechas" class="view" aria-label="Fechas y plazos"></section>
+
+  <div class="endhome" id="endhome" hidden><button type="button" class="btn" id="endhomebtn"><span aria-hidden="true">🏠</span> Volver al inicio</button></div>
+
+  <footer class="lic">
+    Guía del grupo de trabajo (app) · Grupo de Trabajo «IA en la práctica docente», CEIP San Fernando, curso 2026/2027 · CC BY-NC-SA 4.0. Basado en el marco AI Fluency de R. Dakan y J. Feller (con Anthropic), CC BY-NC-SA 4.0. Elaborado con apoyo de IA generativa; contenido revisado por el profesorado autor.
+  </footer>
+</main>
+
+<button type="button" class="fab" id="fab" aria-label="Volver al inicio" hidden><span aria-hidden="true">🏠</span></button>
+
+<script>
+"use strict";
+
+/* ===== Enlaces del grupo: rellénalos y vuelve a publicar. Los vacíos no se muestran ===== */
+const LINKS = {
+  plantilla: "",
+  carpeta: "",
+  notebook: "",
+  curso: "https://academy.claude.com/es/courses/ai-fluency-for-educators"
+};
+const LINK_NAMES = {
+  plantilla: "Plantilla de la ficha (haz tu copia)",
+  carpeta: "Carpeta compartida (uso opcional)",
+  notebook: "Cuaderno de NotebookLM del grupo",
+  curso: "Curso AI Fluency for Educators"
+};
+
+/* ===== utilidades ===== */
+const $ = (s, r) => (r || document).querySelector(s);
+function el(tag, props, ...kids){
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})){
+    if (v === false || v == null) continue;
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()){
+    if (c == null || c === false) continue;
+    n.append(c.nodeType ? c : document.createTextNode(c));
+  }
+  return n;
+}
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k) || "null"); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+function linkBtn(key, label, ghost){
+  const url = LINKS[key];
+  if (!url) return null;
+  return el("a", {class: "btn" + (ghost ? " ghost" : ""), href: url, target: "_blank", rel: "noopener noreferrer", text: label});
+}
+const NEED_EMOJI = {crear: "🌱", adaptar: "🔄", cuatrod: "✍️", dua: "🌈", formatos: "🎧", canvas: "🧩", revisar: "🔍"};
+
+/* ===== secciones y navegación ===== */
+const SECTIONS = [
+  {id: "rutas", em: "🧭", t: "Rutas", d: "¿Qué hago ahora? Te guío paso a paso", c: "green", wide: true},
+  {id: "ficha", em: "📝", t: "La ficha", d: "Cómo rellenarla, apartado por apartado", c: "blue"},
+  {id: "prompts", em: "✨", t: "Prompts", d: "Crea el texto para pedírselo a la IA", c: "plum"},
+  {id: "conceptos", em: "📚", t: "Conceptos", d: "4D, modos, DUA y normas explicados", c: "ochre"},
+  {id: "herramientas", em: "🛠️", t: "Herramientas", d: "NotebookLM y Gemini Canvas", c: "teal"},
+  {id: "dudas", em: "💬", t: "Dudas", d: "Pregunta y responde al grupo", c: "brand"},
+  {id: "fechas", em: "📅", t: "Fechas", d: "Entregas y plazos", c: "muted"}
+];
+function cvar(c){ return c === "brand" ? "var(--brand)" : c === "muted" ? "var(--muted)" : "var(--c-" + c + ")"; }
+const state = {tab: "home", route: null, need: null};
+function show(id){
+  state.tab = id;
+  ["home", ...SECTIONS.map(s => s.id)].forEach(v => $("#view-" + v).classList.toggle("on", v === id));
+  const s = SECTIONS.find(x => x.id === id);
+  $("#homebtn").hidden = id === "home";
+  $("#fab").hidden = id === "home";
+  $("#endhome").hidden = id === "home";
+  $("#bartitle").textContent = s ? s.em + " " + s.t : "Guía del grupo";
+  window.scrollTo(0, 0);
+}
+function actBtn(x){
+  if (x.link) return linkBtn(x.link, x.label, x.ghost);
+  return el("button", {class: "btn" + (x.ghost ? " ghost" : ""), onclick: () => {
+    if (x.need){ show("prompts"); selectNeed(x.need); }
+    else if (x.open){ show("conceptos"); openConcept(x.open); }
+    else if (x.tab){ if (x.tab === "rutas"){ state.route = null; renderRutas(); } show(x.tab); }
+  }, text: x.label});
+}
+function actsRow(acts){
+  const row = el("div", {class: "acts"});
+  (acts || []).forEach(x => { const b = actBtn(x); if (b) row.append(b); });
+  return row.children.length ? row : null;
+}
+function det(em, title, sub, body, open){
+  return el("details", {class: "c", open: open ? true : false},
+    el("summary", {}, el("strong", {}, el("em", {"aria-hidden": "true", style: "font-style:normal", text: em + " "}), title), el("span", {text: sub})), body);
+}
+
+/* ===== INICIO ===== */
+function renderHome(){
+  const box = $("#view-home");
+  box.replaceChildren();
+  box.append(el("h1", {text: "Guía del grupo de trabajo", style: "margin-top:20px"}));
+  box.append(el("p", {class: "sub", text: "IA en la práctica docente, curso 2026/2027"}));
+  box.append(el("p", {style: "margin-top:14px"}, "Toca un icono para empezar. En cualquier pantalla, el ", el("span", {"aria-hidden": "true", text: "🏠"}), " de arriba te trae de vuelta aquí."));
+  const grid = el("div", {class: "tiles"});
+  SECTIONS.forEach(s => {
+    grid.append(el("button", {class: "tile" + (s.wide ? " wide" : ""), style: "--c:" + cvar(s.c), onclick: () => {
+      if (s.id === "rutas"){ state.route = null; renderRutas(); }
+      show(s.id);
+    }}, el("em", {class: "em", "aria-hidden": "true", text: s.em}), el("div", {}, el("strong", {text: s.t}), el("span", {class: "d", text: s.d}))));
+  });
+  box.append(grid);
+}
+
+/* ===== RUTAS ===== */
+const ROUTES = [
+  {
+    id: "empiezo", color: "green", em: "🚀", title: "Empiezo en el grupo",
+    desc: "Lo primero que hay que saber y hacer",
+    intro: "Cinco paradas para quedarte con lo esencial. Marca cada una cuando la tengas hecha.",
+    steps: [
+      {t: "Lee los compromisos", p: "Son ocho y están en el documento informativo de la primera reunión. Los dos que no admiten margen: solo herramientas de IA autorizadas por la Consejería y ningún dato del alumnado en la IA.", acts: [{label: "Ver las normas", open: "compromisos"}]},
+      {t: "Localiza la clase de Classroom", p: "Es el canal del grupo: ahí están los avisos, las tareas, el foro y los materiales. Lo que no está en Classroom, a efectos del grupo, no consta."},
+      {t: "Conoce el marco de trabajo", p: "El grupo piensa la IA como un flujo de trabajo, no como una lista de herramientas: las 4D (Delegación, Descripción, Discernimiento y Diligencia) y tres modos de uso.", acts: [{label: "Leer las 4D", open: "delegacion"}, {link: "curso", label: "Curso AI Fluency", ghost: true}]},
+      {t: "Mira la ficha", p: "Es lo que vas a entregar por cada actividad. Tiene siete apartados y la guía te explica cada uno con ejemplos.", acts: [{label: "Guía de la ficha", tab: "ficha"}]},
+      {t: "Elige tu primera actividad", p: "Si dudas, empieza por algo pequeño que ya haces: adaptar un texto, preparar una rúbrica, resumir un documento. Se piden al menos dos actividades por trimestre; quien quiera puede hacer más. Las fichas se entregan como mínimo dos días antes de cada reunión."}
+    ]
+  },
+  {
+    id: "ficha", color: "blue", em: "📝", title: "Preparo una actividad y relleno la ficha",
+    desc: "De la idea a la ficha terminada",
+    intro: "El recorrido completo de una actividad. Los botones te llevan al generador de prompts o a la guía de la ficha cuando lo necesites.",
+    steps: [
+      {t: "Decide qué delegas", p: "Antes de abrir la herramienta, reparte el trabajo: qué hará la IA, qué harás tú y qué no vas a delegar. No usar IA en una parte es una decisión válida y se anota.", acts: [{label: "Delegación", open: "delegacion"}]},
+      {t: "Pídeselo con contexto, tarea, formato y criterios", p: "Una petición bien descrita ahorra vueltas. Sin datos del alumnado: usa ejemplos inventados o describe la barrera en general.", acts: [{label: "Crear una actividad", need: "crear"}, {label: "Adaptar una que ya tengo", need: "adaptar", ghost: true}]},
+      {t: "Revisa el resultado", p: "Comprueba que es correcto, que no rebaja el objetivo de aprendizaje, que no infantiliza y que no habla del alumnado en términos de carencia.", acts: [{label: "Revisar con criterio", need: "revisar"}]},
+      {t: "Verifica y deja constancia", p: "Contrasta datos y referencias, anota qué parte hizo la IA y comprueba que en nada de lo que has escrito o pegado hay datos del alumnado."},
+      {t: "Haz tu copia de la plantilla", p: "La plantilla está en solo lectura. En Documentos de Google: Archivo > Hacer una copia. Ponle el nombre Ficha_Apellido_T1_A1 (T es el trimestre y A el número de actividad).", acts: [{link: "plantilla", label: "Abrir la plantilla"}, {label: "Cómo hacer la copia", tab: "ficha", ghost: true}]},
+      {t: "Rellena la ficha", p: "Cabecera, etapa y nivel, modo de uso, las 4D en una frase cada una y la descripción con los huecos.", acts: [{label: "Guía de la ficha", tab: "ficha"}, {label: "Redactar las 4D", need: "cuatrod", ghost: true}]},
+      {t: "Relaciona la actividad con el DUA", p: "Se recomienda hacerlo con la IA en modo aumentación, a partir de lo que ya has elaborado. Después completas tres frases, una por principio, y compruebas que el objetivo sigue intacto.", acts: [{label: "Prompt para el DUA", need: "dua"}]},
+      {t: "Firma la autoría", p: "Al final de la ficha pones tu nombre y aceptas publicar la ficha y los materiales con licencia CC BY-NC-SA 4.0."}
+    ]
+  },
+  {
+    id: "entrego", color: "ochre", em: "📤", title: "Entrego la ficha en Classroom",
+    desc: "Cuatro pasos en la tarea",
+    intro: "La entrega se hace siempre en la tarea de Classroom, una ficha por actividad.",
+    steps: [
+      {t: "Abre la tarea correspondiente", p: "En Classroom, pestaña Trabajo de clase. Hay una tarea por cada fecha de reunión."},
+      {t: "Adjunta tu ficha", p: "En el recuadro Tu trabajo, pulsa Añadir o crear > Google Drive. Busca tu ficha, selecciónala y pulsa Insertar."},
+      {t: "Pulsa Entregar", p: "Antes de entregar, comprueba que la ficha no contiene datos, imágenes, voz ni producciones del alumnado. Si los lleva, se devuelve para corregirla antes de valorarla."},
+      {t: "Si haces más de dos, repite", p: "Cada actividad tiene su propia copia de la plantilla. No reutilices la misma ficha para varias. La carpeta compartida es opcional: una actividad que solo esté en la carpeta no cuenta como entregada."}
+    ]
+  },
+  {
+    id: "comparto", color: "plum", em: "📣", title: "Comparto lo que ha salido",
+    desc: "Vídeos, audios y apps en el foro",
+    intro: "Lo que generes a partir de una actividad puede ganar visibilidad en el foro del grupo.",
+    steps: [
+      {t: "Genera el formato", p: "Con NotebookLM (autorizado para el grupo) puedes pasar lo trabajado a audio, vídeo, infografía, presentación o mapa mental. Las fuentes que cargues no pueden llevar datos del alumnado.", acts: [{label: "Texto para personalizar el material", need: "formatos"}, {link: "notebook", label: "Cuaderno del grupo", ghost: true}]},
+      {t: "Si prefieres una app, créala con Gemini Canvas", p: "Un cuestionario interactivo, un juego de repaso o una herramienta sencilla se pueden crear describiendo la idea en Gemini Canvas, siempre que Gemini esté autorizado para tu uso. La app no debe pedir ni guardar datos del alumnado, y se prueba entera antes de usarla.", acts: [{label: "Prompt para crear la app", need: "canvas"}, {label: "Cómo funciona Canvas", open: "canvas", ghost: true}]},
+      {t: "Contrástalo con las fuentes", p: "Los audios y vídeos generados suelen redondear cifras, cambiar nombres o colar ejemplos que no estaban. Revisa fechas, nombres y referencias a normativa."},
+      {t: "Cuida la imagen y la voz", p: "Si un vídeo o audio grabado en clase recoge imagen o voz del alumnado, solo se comparte con las autorizaciones de imagen del centro, y ese material nunca se introduce en una herramienta de IA."},
+      {t: "Publícalo en el foro", p: "Pon tu nombre como autoría e indica que se ha elaborado con apoyo de IA. Se publica en el foro de Classroom, dentro del grupo."},
+      {t: "Comprueba la licencia", p: "Los materiales del grupo se comparten con CC BY-NC-SA 4.0: se pueden usar y adaptar citando la autoría, sin fines comerciales y compartiendo con la misma licencia."}
+    ]
+  },
+  {
+    id: "duda", color: "teal", em: "🙋", title: "Tengo una duda",
+    desc: "Dónde buscar y dónde preguntar",
+    intro: "Tres sitios, por orden. Así la respuesta le sirve a todo el grupo.",
+    steps: [
+      {t: "Busca en Conceptos", p: "Allí están las 4D, los tres modos de uso, el DUA y las normas del grupo explicadas con ejemplos.", acts: [{label: "Ir a Conceptos", tab: "conceptos"}]},
+      {t: "Pregunta al grupo", p: "Publica la duda en la sección Dudas de esta guía o en el foro de Classroom, y no por mensaje privado. Sin datos del alumnado.", acts: [{label: "Ir a Dudas", tab: "dudas"}]},
+      {t: "Si es de normativa o de herramientas", p: "Consúltalo con la coordinación o con la asesoría del CEP. Si citas una norma en un documento oficial, comprueba el artículo en BOJA o BOE antes de darlo por bueno."}
+    ]
+  }
+];
+
+function renderRutas(){
+  const box = $("#view-rutas");
+  box.replaceChildren();
+  if (!state.route){
+    box.append(el("h2", {text: "¿Qué necesitas hacer?"}));
+    const ol = el("ol", {class: "line"});
+    ROUTES.forEach(r => {
+      const done = (store.get("ruta:" + r.id) || []).length;
+      ol.append(el("li", {style: "--c:var(--c-" + r.color + ")"},
+        el("span", {class: "dot"}),
+        el("button", {class: "route-btn", onclick: () => { state.route = r.id; renderRutas(); window.scrollTo(0, 0); }},
+          el("strong", {}, el("em", {"aria-hidden": "true", style: "font-style:normal;color:inherit;font-weight:400", text: r.em + " "}), r.title),
+          el("span", {text: r.desc}),
+          el("em", {text: done + " de " + r.steps.length + " paradas", style: "--c:var(--c-" + r.color + ")"})
+        )));
+    });
+    box.append(ol);
+    return;
+  }
+  const r = ROUTES.find(x => x.id === state.route);
+  const done = new Set(store.get("ruta:" + r.id) || []);
+  const wrap = el("div", {style: "--c:var(--c-" + r.color + ")"});
+  wrap.append(el("button", {class: "back", onclick: () => { state.route = null; renderRutas(); window.scrollTo(0, 0); }, text: "↩ Volver a las rutas"}));
+  wrap.append(el("div", {class: "rhead"}, el("h2", {text: r.em + " " + r.title, style: "margin:0 0 6px"}), el("p", {class: "sub", text: r.intro})));
+  wrap.append(el("div", {class: "progress"}, el("span", {id: "ptxt"}), el("div", {class: "bar"}, el("i", {id: "pbar"}))));
+  const ol = el("ol", {class: "steps"});
+  r.steps.forEach((s, i) => {
+    const li = el("li", {class: "step" + (done.has(i) ? " done" : "")});
+    const chk = el("button", {class: "check", "aria-pressed": done.has(i) ? "true" : "false", "aria-label": "Marcar parada " + (i + 1) + " como hecha", onclick: () => {
+      if (done.has(i)) done.delete(i); else done.add(i);
+      store.set("ruta:" + r.id, [...done]);
+      chk.setAttribute("aria-pressed", done.has(i) ? "true" : "false");
+      li.classList.toggle("done", done.has(i));
+      upd();
+    }}, el("span", {text: String(i + 1)}));
+    li.append(chk, el("h3", {text: s.t}), el("p", {text: s.p}));
+    const row = actsRow(s.acts);
+    if (row) li.append(row);
+    ol.append(li);
+  });
+  wrap.append(ol);
+  box.append(wrap);
+  function upd(){
+    $("#ptxt").textContent = done.size + " de " + r.steps.length + " paradas hechas";
+    $("#pbar").style.width = (done.size / r.steps.length * 100) + "%";
+  }
+  upd();
+}
+
+/* ===== LA FICHA ===== */
+const FICHA = [
+  {em: "🙋", t: "Tu nombre y el nombre de la actividad", s: "La cabecera de la ficha",
+   q: "Escribe tu nombre y apellidos junto a «Nombre del maestro/a», y un título corto en «Nombre de la actividad». El título tiene que servir para reconocer la actividad cuando esté en el banco de recursos. Es el único dato personal de la ficha, y es el tuyo.",
+   evita: ["Nombres de alumnado o de familias.", "Títulos genéricos como «Actividad 1»."],
+   ej: ["Texto de comprensión en tres niveles: el ciclo del agua"]},
+  {em: "🏫", t: "Etapa y nivel", s: "Borra lo que sobra",
+   q: "En cada línea hay varias opciones separadas por barras. Borra todas menos una. Si la actividad es de documentación docente o de gestión de centro, deja «No aplica» en el nivel. Si sirve para varios cursos, «Varios niveles».",
+   ej: ["Etapa: Primaria", "Nivel: 3.º"]},
+  {em: "🤖", t: "Uso de la IA que he hecho", s: "Elige uno de los tres modos",
+   q: "Deja solo un modo y borra los otros dos. Para decidir, piensa en cómo trabajaste:",
+   list: ["¿Una petición bien definida y un resultado final? Automatización.", "¿Varias vueltas de pedir, revisar, corregir y volver a pedir? Aumentación.", "¿Configuraste un marco (una gema, un cuaderno, un asistente) y la IA actuó dentro de él? Agentividad."],
+   evita: ["Marcar el modo que suena mejor en lugar del que usaste."],
+   acts: [{label: "Ver los tres modos", open: "aumentacion"}]},
+  {em: "🧠", t: "Las 4D en esta actividad", s: "Una frase breve en cada una",
+   q: "Escribe una frase breve debajo de cada D. Cuenta lo que de verdad hiciste, no lo que habría sido ideal.",
+   list: ["Delegación: qué hice yo, qué hizo la IA y qué decidí no delegar. Si en alguna parte no usaste IA, escríbelo: es una decisión válida.", "Descripción: cómo se lo pediste, con contexto, tarea, formato y criterios.", "Discernimiento: cómo comprobaste que el resultado era correcto y adecuado, y que no rebajaba el objetivo ni infantilizaba.", "Diligencia: qué verificaste, cómo dejaste constancia del papel de la IA y cómo protegiste los datos."],
+   ej: ["Delegación: la IA propuso tres versiones del texto; yo elegí los contenidos y no le delegué la evaluación.", "Descripción: indiqué nivel, objetivo, extensión y que mantuviera el vocabulario del tema.", "Discernimiento: comparé las tres versiones con el original y recuperé dos términos que había quitado.", "Diligencia: revisé los datos, anoté que el texto lo generó NotebookLM y no usé datos del alumnado."],
+   acts: [{label: "Ayuda para redactar las 4D", need: "cuatrod"}, {label: "Ver las 4D", open: "delegacion", ghost: true}]},
+  {em: "📄", t: "Descripción de la actividad", s: "Completa los huecos",
+   q: "Completa los huecos de la frase y borra las opciones que no correspondan: el momento (planificación, aula, evaluación o documentación docente) y el punto de partida (cero o un documento tuyo previo). Termina siempre con «Sin datos del alumnado».",
+   evita: ["Pegar aquí producciones del alumnado.", "Dejar sin borrar las opciones sobrantes."],
+   ej: ["En esta actividad he hecho un texto de comprensión lectora en tres niveles de dificultad para que todo el grupo trabaje el mismo contenido. La he usado en el momento de: planificación. Dura 45 minutos de preparación. He usado NotebookLM. He partido de: un documento mío previo. Sin datos del alumnado."]},
+  {em: "🌈", t: "Relación con el DUA", s: "Con la IA en modo aumentación",
+   q: "Copia el texto de ayuda que viene en la ficha, pégalo en la herramienta autorizada junto con tu descripción (sin datos del alumnado) y conversa hasta que el resultado te convenza. Después completa tres frases, una por principio, y marca si la actividad sigue pidiendo el mismo objetivo:",
+   list: ["Implicación: distintas formas de motivar y de participar.", "Representación: la información ofrecida de varias formas.", "Acción y expresión: varias formas de demostrar lo aprendido.", "Comprobado: deja «sí» o «lo he ajustado»."],
+   evita: ["Copiar el párrafo entero que devuelve la IA: tres frases breves y concretas valen más.", "Pedir a la IA que cite artículos: el marco (Decreto 101/2023, arts. 4.d y 7) ya está escrito en la ficha."],
+   ej: ["Implicación: en esta actividad, el alumnado elige entre tres textos del mismo tema según sus intereses.", "Representación: en esta actividad, el texto se ofrece escrito, con un esquema y en audio.", "Acción y expresión: en esta actividad, las respuestas pueden darse por escrito, oralmente o con un dibujo explicado."],
+   acts: [{label: "Prompt para el DUA", need: "dua"}, {label: "Leer sobre el DUA", open: "dua", ghost: true}]},
+  {em: "✍️", t: "Autoría y licencia", s: "Tu nombre y tu aceptación",
+   q: "Escribe tu nombre y apellidos en el hueco. Con esa línea aceptas publicar la ficha y los materiales asociados con licencia CC BY-NC-SA 4.0. Si algún material que adjuntas es de terceros con otra licencia, no lo incluyas: cítalo y enlázalo.",
+   acts: [{label: "Qué permite la licencia", open: "licencia"}]}
+];
+
+function renderFicha(){
+  const box = $("#view-ficha");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Cómo rellenar la ficha"}));
+  box.append(el("p", {class: "sub", text: "Siete apartados, en el orden en que aparecen. Toca cada uno para ver qué escribir, qué evitar y un ejemplo."}));
+  box.append(el("p", {class: "notice", style: "margin-top:14px", text: "Un consejo: empieza por la descripción de la actividad. Con ella escrita, las 4D y el DUA salen casi solos."}));
+
+  const copia = el("div", {class: "cbody"},
+    el("ol", {class: "plain"},
+      el("li", {text: "Abre la plantilla. Está en solo lectura para que nadie la modifique por error."}),
+      el("li", {text: "En el menú superior, pulsa Archivo > Hacer una copia."}),
+      el("li", {text: "En Nombre escribe Ficha_Apellido_T1_A1: T es el trimestre y A el número de actividad. Por ejemplo, Ficha_Garcia_T2_A3."}),
+      el("li", {text: "Deja sin marcar «Compartir con las mismas personas» y pulsa Hacer una copia."}),
+      el("li", {text: "Se abre tu copia, ya editable. Haz una copia nueva para cada actividad."})),
+    el("p", {text: "Desde el móvil, en la app Documentos de Google: los tres puntos (⋮) de arriba a la derecha, Compartir y exportar y Hacer una copia."}),
+    actsRow([{link: "plantilla", label: "Abrir la plantilla"}]));
+  box.append(det("📑", "Antes de empezar: haz tu copia", "Una copia de la plantilla por actividad", copia, false));
+
+  FICHA.forEach((f, i) => {
+    const body = el("div", {class: "cbody"});
+    body.append(el("p", {}, el("strong", {text: "Qué escribir. "}), f.q));
+    if (f.list) body.append(el("ul", {}, f.list.map(x => el("li", {text: x}))));
+    if (f.evita) body.append(el("p", {}, el("strong", {text: "Evita. "}), f.evita.join(" ")));
+    if (f.ej) body.append(el("div", {class: "ex"}, el("p", {}, el("strong", {text: "Ejemplo inventado"})), f.ej.map(x => el("p", {text: x}))));
+    const row = actsRow(f.acts);
+    if (row){ row.style.marginTop = "12px"; body.append(row); }
+    box.append(det(f.em, (i + 1) + ". " + f.t, f.s, body, false));
+  });
+
+  const antes = el("div", {class: "cbody"},
+    el("ul", {}, [
+      "No hay datos, imágenes, voz ni producciones del alumnado.",
+      "Has borrado las opciones que sobran y has completado los huecos.",
+      "Las frases de las 4D y del DUA dicen lo que de verdad hiciste.",
+      "Has escrito tu nombre en la autoría."].map(x => el("li", {text: x}))),
+    el("p", {text: "Si la ficha lleva datos del alumnado, se devuelve para corregirla antes de valorarla."}));
+  box.append(det("✅", "Antes de entregar", "Cuatro comprobaciones rápidas", antes, false));
+
+  const entrega = el("div", {class: "cbody"},
+    el("ol", {class: "plain"},
+      el("li", {text: "En Classroom, abre la tarea correspondiente."}),
+      el("li", {text: "En el recuadro Tu trabajo, pulsa Añadir o crear > Google Drive."}),
+      el("li", {text: "Busca tu ficha, selecciónala y pulsa Insertar."}),
+      el("li", {text: "Pulsa Entregar."})),
+    el("p", {text: "Una ficha por actividad. La carpeta compartida es opcional: lo que solo esté en la carpeta no cuenta como entregado."}));
+  box.append(det("📤", "Cómo entregarla", "En la tarea de Classroom", entrega, false));
+}
+
+/* ===== HERRAMIENTAS ===== */
+function renderHerr(){
+  const box = $("#view-herramientas");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Herramientas del grupo"}));
+  box.append(el("p", {class: "sub", text: "Solo se usan herramientas autorizadas por la Consejería. Ninguna recibe datos del alumnado."}));
+  const tools = [
+    {em: "🎧", c: "teal", t: "NotebookLM", d: "Autorizado para el grupo. Trabaja con las fuentes que cargas y las convierte en resumen en audio, vídeo, infografía, presentación, mapa mental o cuestionario.",
+     acts: [{label: "Cómo se usa", open: "notebook"}, {label: "Texto para personalizar", need: "formatos", ghost: true}, {link: "notebook", label: "Cuaderno del grupo", ghost: true}]},
+    {em: "🧩", c: "plum", t: "Gemini Canvas", d: "Crea apps, juegos y cuestionarios describiendo la idea. Solo si Gemini está autorizado para tu caso: confírmalo con la asesoría del CEP.",
+     acts: [{label: "Cómo se usa", open: "canvas"}, {label: "Prompt para crear la app", need: "canvas", ghost: true}]},
+    {em: "🎓", c: "ochre", t: "Curso AI Fluency for Educators", d: "El curso en que se basa el marco de las 4D que usa el grupo.",
+     acts: [{link: "curso", label: "Abrir el curso"}]},
+    {em: "🔎", c: "blue", t: "Otra herramienta", d: "Antes de usarla en el grupo, confirma con la asesoría del CEP que está autorizada. Si dudas, pregunta en el foro.",
+     acts: [{label: "Ver las normas", open: "herramientas"}]}
+  ];
+  tools.forEach(t => {
+    const art = el("article", {class: "tool", style: "--c:var(--c-" + t.c + ")"},
+      el("h3", {}, el("em", {"aria-hidden": "true", text: t.em}), t.t), el("p", {text: t.d}));
+    const row = actsRow(t.acts);
+    if (row) art.append(row);
+    box.append(art);
+  });
+}
+
+/* ===== FECHAS ===== */
+function renderFechas(){
+  const box = $("#view-fechas");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Fechas y plazos"}));
+  const rows = [
+    ["📤", "Entrega de las fichas", "En la tarea de Classroom, como mínimo dos días antes de cada reunión."],
+    ["⏳", "Actividades", "Al menos dos por trimestre. Quien quiera puede presentar más."],
+    ["🗓️", "Reuniones", "Siete en línea, de 30 minutos. Las fechas se anuncian en Classroom."],
+    ["📋", "Encuesta de evaluación en Séneca", "Antes del 31 de mayo de 2027."]
+  ];
+  box.append(el("dl", {class: "rows"}, rows.map(r => el("div", {}, el("dt", {}, el("span", {"aria-hidden": "true", text: r[0] + " "}), r[1]), el("dd", {text: r[2]})))));
+  const keys = Object.keys(LINK_NAMES).filter(k => LINKS[k]);
+  if (keys.length){
+    box.append(el("h2", {text: "Enlaces del grupo"}));
+    const ul = el("ul", {class: "links"});
+    keys.forEach(k => ul.append(el("li", {}, el("span", {text: LINK_NAMES[k]}), el("a", {class: "btn ghost", href: LINKS[k], target: "_blank", rel: "noopener noreferrer", text: "Abrir"}))));
+    box.append(ul);
+  }
+}
+
+/* ===== CONCEPTOS ===== */
+const CONCEPTS = [
+  {g: "El marco de trabajo: las 4D", items: [
+    {id: "delegacion", t: "Delegación", s: "Qué hace la persona, qué hace la IA y qué no se delega.",
+     b: ["Antes de abrir ninguna herramienta, reparte el trabajo. Hay tareas que conviene delegar, como convertir un texto en tabla o generar variantes de un ejercicio, y otras que no, como decidir el objetivo, evaluar o tomar decisiones sobre el alumnado.",
+         "Decidir no usar IA en una tarea, o en parte de ella, también es Delegación. Es una decisión válida y se anota en la ficha."],
+     e: "La IA propone diez preguntas de comprensión. Yo elijo cuatro, las reescribo y decido el criterio de corrección."},
+    {id: "descripcion", t: "Descripción", s: "Explicar a la IA qué necesitas: contexto, tarea, formato y criterios.",
+     b: ["Una petición vaga da un resultado vago. Cuenta para quién es, qué quieres que haga, en qué formato lo quieres y con qué criterios se juzga que está bien.",
+         "El generador de prompts de esta guía sigue esa estructura, y añade por su cuenta las condiciones del grupo (DUA, objetivo intacto, sin datos del alumnado)."],
+     e: "«Soy docente de 3.º de Primaria. Quiero un texto de 120 palabras sobre el ciclo del agua, en tres párrafos cortos, con vocabulario de ese nivel y sin rebajar el contenido.»"},
+    {id: "discernimiento", t: "Discernimiento", s: "Evaluar con criterio lo que devuelve la IA y cómo lo ha hecho.",
+     b: ["Léelo como si lo hubiera escrito un alumno aplicado pero despistado: puede sonar muy seguro y estar equivocado. Comprueba datos, nombres y referencias.",
+         "Mira también si rebaja el objetivo de aprendizaje, si infantiliza o si habla del alumnado en términos de carencia. Si algo falla, corrige a mano o vuelve a pedir indicando qué cambiar."],
+     e: "El texto adaptado queda más corto, pero ha desaparecido el vocabulario que se quería trabajar. Lo recupero y vuelvo a pedir la versión con apoyos."},
+    {id: "diligencia", t: "Diligencia", s: "Verificar, dejar constancia, proteger datos y responder del resultado.",
+     b: ["La responsabilidad del material es del docente, no de la herramienta. Verifica antes de usarlo en el aula, anota qué parte hizo la IA, no introduzcas datos del alumnado y comparte con la licencia del grupo.",
+         "Si citas normativa, la comprobamos en BOJA o BOE. Una IA puede inventar un artículo con mucha seguridad."],
+     e: "En la ficha escribo: «Texto generado con NotebookLM a partir de mis apuntes; revisado y corregido por mí; sin datos del alumnado».",
+     link: true}
+  ]},
+  {g: "Los tres modos de uso", items: [
+    {id: "automatizacion", t: "Automatización", s: "La IA hace una tarea definida de principio a fin.",
+     b: ["Tú das la instrucción y revisas el resultado. Sirve para tareas acotadas que sabes describir bien."],
+     e: "Convertir un texto en una tabla, generar una lista de vocabulario, pasar apuntes a un guion."},
+    {id: "aumentacion", t: "Aumentación", s: "Pensar y crear con la IA, iterando.",
+     b: ["No hay una única respuesta: pides, revisas, corriges y vuelves a pedir. La IA propone y tú decides. Es el modo recomendado para relacionar una actividad con los principios del DUA a partir de lo que ya has elaborado."],
+     e: "Diseñar una situación de aprendizaje con varias rondas de propuestas y ajustes."},
+    {id: "agentividad", t: "Agentividad", s: "La IA actúa con autonomía dentro de un marco que tú configuras.",
+     b: ["Una gema, un cuaderno de NotebookLM o un asistente con instrucciones y fuentes propias. Cuanta más autonomía, más importa lo que pones en las instrucciones y en las fuentes, y más importa la revisión posterior."],
+     e: "Un cuaderno con los materiales del grupo que responde dudas solo a partir de esas fuentes."}
+  ]},
+  {g: "Atención a la diversidad", items: [
+    {id: "dua", t: "Diseño Universal para el Aprendizaje (DUA)", s: "Diseñar desde el principio varias formas de participar, de recibir la información y de demostrar lo aprendido.",
+     b: ["El DUA tiene tres principios, y cada actividad de la ficha se relaciona con los tres:",
+         ["Implicación: varias formas de motivar y de participar.", "Representación: la información se ofrece de varias formas.", "Acción y expresión: varias formas de demostrar lo aprendido."],
+         "La idea es diseñar pensando en todo el alumnado desde el principio, no adaptar después. El grupo toma como referencia el Decreto 101/2023, de 9 de mayo, que establece la ordenación y el currículo de Educación Primaria en Andalucía (arts. 4.d y 7). Compruébalo en BOJA antes de citarlo en un documento oficial."],
+     e: "Un texto de lectura se ofrece escrito, en audio y con un esquema; el alumnado puede responder por escrito, oralmente o con un dibujo explicado."},
+    {id: "barreras", t: "Barreras y apoyos", s: "Hablamos de barreras del entorno, no de carencias de la persona.",
+     b: ["La IA adapta a partir de la barrera descrita en abstracto, por ejemplo «alumnado con dificultad en la decodificación lectora». Nunca a partir de un alumno o alumna identificable, de su diagnóstico ni de sus producciones.",
+         "Se evita el lenguaje de lástima o de déficit. La inclusión es participar como uno más, no ser atendido aparte."],
+     e: "En vez de «niños que no saben leer bien», escribo «alumnado con dificultad en la decodificación lectora»."},
+    {id: "nobajar", t: "No rebajar ni infantilizar", s: "Una adaptación mantiene el objetivo y el tono acorde a la edad.",
+     b: ["Parte del Discernimiento en esta línea consiste en comprobar que la adaptación no rebaja el objetivo de aprendizaje sin justificación y que no infantiliza. Cambian los apoyos y el camino, no la meta."],
+     e: "Una versión en lectura fácil conserva las mismas ideas del texto original, con frases más cortas, y no usa un tono de cuento si el alumnado es de 6.º."},
+    {id: "pictogramas", t: "Pictogramas", s: "Remite a recursos con licencia compatible, no generes imágenes que los imiten.",
+     b: ["Para pictogramas, usa ARASAAC (licencia CC BY-NC-SA) en lugar de pedir a una IA que genere imágenes que imiten sistemas de comunicación aumentativa. La IA puede ayudarte a decidir qué pictogramas buscar, pero no a fabricarlos."]},
+    {id: "medidas", t: "Medidas y documentos oficiales", s: "Los revisa siempre el docente responsable.",
+     b: ["Si una medida está vinculada a documentos oficiales de atención a la diversidad, la revisa el docente responsable y tiene que ajustarse a la normativa andaluza vigente. La IA no sustituye esa revisión, y si no hay certeza sobre un artículo concreto, se dice y se comprueba."]}
+  ]},
+  {g: "Herramientas del grupo", items: [
+    {id: "notebook", t: "NotebookLM", s: "Cuaderno con fuentes propias; autorizado para el grupo.",
+     b: ["Trabaja solo con las fuentes que cargas y puede generar resúmenes en audio, vídeo, infografías, presentaciones, mapas mentales y cuestionarios. El grupo tiene un cuaderno propio, con documentos del grupo y actividades ya entregadas.",
+         "Cuanto más precisas son las fuentes y más claras las instrucciones, mejor sale el resultado. Las fuentes no pueden llevar datos del alumnado."],
+     e: "Subo mis apuntes de 3.º sobre el ciclo del agua, genero un audio de cinco minutos para repasar y lo contrasto con mis apuntes antes de compartirlo."},
+    {id: "canvas", t: "Gemini Canvas", s: "Crear apps, juegos o cuestionarios describiendo la idea.",
+     b: ["Canvas es un espacio de trabajo dentro de Gemini donde describes lo que quieres y Gemini genera el código de una app, un juego, un cuestionario, una página web o una infografía, con vista previa. Después se ajusta con nuevas peticiones, sin escribir código. Es un uso de Aumentación.",
+         "Condición previa: Gemini solo se usa en el grupo si está autorizado para tu caso. Confírmalo con la asesoría del CEP.",
+         "Cómo se usa (la interfaz cambia a menudo, así que los nombres pueden variar):",
+         ["En la web o en la app de Gemini, debajo del cuadro de texto, pulsa Canvas. También está en Herramientas.", "Pega el prompt que genera esta guía y revisa la vista previa.", "Pide los cambios de uno en uno: «hazlo más claro», «añade una pantalla de resultados».", "Con un documento abierto en Canvas, arriba a la derecha está el botón Crear, que ofrece página web, infografía, cuestionario o resumen de audio.", "Para compartir, usa el botón Compartir. Antes, comprueba quién podrá verlo."],
+         "Normas: la app no pide ni guarda datos del alumnado, se prueba entera antes de usarla, se revisa el contenido y se anota en la ficha qué parte hizo la IA. Si se comparte, lleva la licencia CC BY-NC-SA 4.0."],
+     e: "Un juego de repaso de multiplicaciones para 3.º con tres niveles de ayuda, que no pide el nombre y que explica por qué cada respuesta es correcta o no."}
+  ]},
+  {g: "Normas del grupo", items: [
+    {id: "compromisos", t: "Los ocho compromisos", s: "Lo que acepta cada participante.",
+     b: [["Asistir y participar de forma activa y crítica en el foro de Classroom.", "Elaborar al menos dos actividades por trimestre (se pueden presentar más) y entregarlas con su ficha en Classroom dos días antes de cada reunión.", "Ponerlas en práctica en el aula y valorar los resultados.", "Usar solo herramientas de IA autorizadas por la Consejería.", "No introducir datos, imágenes, voz ni producciones del alumnado.", "Verificar el contenido generado y documentar el papel de la IA.", "Compartir los materiales con licencia CC BY-NC-SA 4.0.", "Cumplimentar la encuesta de Séneca antes del 31 de mayo de 2027."]]},
+    {id: "herramientas", t: "Herramientas autorizadas", s: "Solo las autorizadas por la Consejería.",
+     b: ["En las actividades de experimentación se usan únicamente herramientas autorizadas. NotebookLM está autorizado para el grupo. Para cualquier otra, incluida Gemini, confirma antes con la asesoría del CEP y pregunta en el foro si tienes dudas."]},
+    {id: "datos", t: "Datos del alumnado", s: "Nunca en una herramienta de IA.",
+     b: ["Está prohibido introducir en herramientas de IA datos personales, imágenes, voz, producciones o cualquier información que identifique al alumnado.",
+         "Si tu uso lo necesita, hay alternativas: datos ficticios, plantillas, ejemplos inventados o la descripción genérica de la barrera. El generador de prompts de esta guía avisa cuando detecta algo sospechoso, pero no sustituye tu revisión."],
+     e: "En vez de pegar la redacción de un alumno, pido a la IA «un texto de 80 palabras con tres errores de puntuación típicos de 3.º»."},
+    {id: "licencia", t: "Licencia CC BY-NC-SA 4.0", s: "Qué permite y qué exige.",
+     b: ["Los materiales del grupo se publican con Creative Commons Reconocimiento-NoComercial-CompartirIgual 4.0:",
+         ["Reconocimiento: se cita la autoría.", "NoComercial: no se usa con fines comerciales.", "CompartirIgual: las versiones adaptadas se comparten con la misma licencia."],
+         "No se incorporan a los materiales textos, imágenes ni recursos con licencias incompatibles. Un material con licencia que no permite obras derivadas se cita y se enlaza, no se adapta."]},
+    {id: "nousar", t: "No usar IA también cuenta", s: "Es una decisión de Delegación válida.",
+     b: ["Si en una tarea, o en parte de ella, decides no usar IA, es una decisión tan válida como la contraria. Se anota en la ficha, en el apartado de Delegación."]}
+  ]}
+];
+let conceptFilter = "";
+function renderConceptos(){
+  const box = $("#view-conceptos");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Conceptos explicados"}));
+  const input = el("input", {class: "search", type: "search", placeholder: "Buscar un concepto", "aria-label": "Buscar un concepto", value: conceptFilter, oninput: e => { conceptFilter = e.target.value; fillConcepts(); }});
+  box.append(input, el("div", {id: "clist"}));
+  fillConcepts();
+}
+function norm(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+function fillConcepts(){
+  const list = $("#clist");
+  list.replaceChildren();
+  const q = norm(conceptFilter.trim());
+  let n = 0;
+  CONCEPTS.forEach(g => {
+    const items = g.items.filter(c => {
+      if (!q) return true;
+      const flat = [c.t, c.s, c.e || "", ...c.b.flat()].join(" ");
+      return norm(flat).includes(q);
+    });
+    if (!items.length) return;
+    list.append(el("h3", {class: "grp", text: g.g}));
+    items.forEach(c => {
+      n++;
+      const body = el("div", {class: "cbody"});
+      c.b.forEach(p => {
+        if (Array.isArray(p)) body.append(el("ul", {}, p.map(x => el("li", {text: x}))));
+        else body.append(el("p", {text: p}));
+      });
+      if (c.e) body.append(el("div", {class: "ex", text: "Ejemplo: " + c.e}));
+      if (c.link) body.append(el("p", {style: "margin-top:12px"}, linkBtn("curso", "Abrir el curso AI Fluency for Educators", true)));
+      list.append(el("details", {class: "c", id: "c-" + c.id, open: q ? true : false}, el("summary", {}, el("strong", {text: c.t}), el("span", {text: c.s})), body));
+    });
+  });
+  if (!n) list.append(el("p", {class: "empty", text: "No hay ningún concepto con esa búsqueda. Prueba con otra palabra o pregunta en Dudas."}));
+}
+function openConcept(id){
+  conceptFilter = "";
+  renderConceptos();
+  const d = $("#c-" + id);
+  if (d){ d.open = true; setTimeout(() => d.scrollIntoView({block: "start"}), 30); }
+}
+
+/* ===== GENERADOR DE PROMPTS ===== */
+function privacyFlags(t){
+  const f = [];
+  if (/\b\d{8}[A-Za-z]\b/.test(t) || /\b[XYZxyz]\d{7}[A-Za-z]\b/.test(t)) f.push("Parece un DNI o un NIE.");
+  if (/[\w.+-]+@[\w-]+\.[\w.]+/.test(t)) f.push("Hay una dirección de correo.");
+  if (/(?:\+?34)?[\s.]?[6-9]\d{2}[\s.]?\d{3}[\s.]?\d{3}\b/.test(t)) f.push("Parece un teléfono.");
+  if (/(diagn[oó]stic|dictamen|informe psicopedag|TDAH|dislexia|autismo|discapacidad|s[ií]ndrome)/i.test(t)) f.push("Aparece un diagnóstico o una condición. Describe la barrera en general, sin diagnóstico.");
+  if (/\b(mi alumn[oa]|el alumno|la alumna|un alumno|una alumna|se llama|el ni[ñn]o|la ni[ñn]a)\b/i.test(t)) f.push("Parece que hablas de una persona concreta. Describe la barrera en abstracto.");
+  return f;
+}
+const MODES = [
+  {id: "aum", label: "Aumentación (conversar y ajustar)"},
+  {id: "auto", label: "Automatización (una respuesta final)"}
+];
+const ADAPT_TYPES = ["Niveles de lectura", "Lectura fácil", "Apoyos visuales", "Secuenciación en pasos", "Andamiaje graduado"];
+const FMT = ["Resumen en audio", "Resumen en vídeo", "Infografía", "Presentación", "Mapa mental", "Cuestionario"];
+const AUD = ["Alumnado", "Profesorado", "Familias"];
+
+const COMMON_CRIT = [
+  "Mantén el objetivo de aprendizaje sin rebajarlo y sin infantilizar el tono.",
+  "Habla de barreras del entorno y de apoyos, nunca de carencias del alumnado.",
+  "No uses ni me pidas datos personales del alumnado: usa ejemplos inventados.",
+  "Si no estás seguro de un dato, una referencia o un artículo de normativa, dilo y no lo inventes."
+];
+function modeLine(v){
+  return v === "auto"
+    ? "Dame una única versión final, lista para usar."
+    : "Antes de darme la versión final, hazme tres preguntas para afinarla y ajusta según mis respuestas.";
+}
+function ctx(v){
+  const parts = [];
+  if (v.etapa || v.nivel) parts.push("Soy docente de " + [v.etapa, v.nivel].filter(Boolean).join(", ") + ".");
+  if (v.area) parts.push("Área o materia: " + v.area + ".");
+  if (v.duracion) parts.push("Duración prevista: " + v.duracion + ".");
+  return parts.length ? parts.join(" ") : null;
+}
+function barrierLine(v){
+  return v.barrera ? "Hay que quitar esta barrera del entorno, descrita en general y sin referirse a ningún alumno ni alumna concretos: " + v.barrera + "." : null;
+}
+function lines(a){ return a.filter(x => x != null && x !== false).join("\n"); }
+function bullets(a){ return a.map(x => "- " + x).join("\n"); }
+
+const NEEDS = [
+  {id: "crear", title: "Crear una actividad desde cero", desc: "Diseñada desde el DUA desde el principio",
+   fields: [
+    {id: "etapa", label: "Etapa", ph: "Educación Primaria", type: "text", req: true},
+    {id: "nivel", label: "Nivel", ph: "3.º", type: "text", req: true},
+    {id: "area", label: "Área o materia", ph: "Lengua, Matemáticas, Educación Física…", type: "text", req: true},
+    {id: "objetivo", label: "Objetivo de aprendizaje", hint: "Qué debe lograr el alumnado", type: "area", req: true},
+    {id: "duracion", label: "Duración", ph: "2 sesiones de 45 minutos", type: "text"},
+    {id: "formato", label: "Tipo de actividad", hint: "Opcional", ph: "ficha de trabajo, juego, proyecto breve…", type: "text"},
+    {id: "barrera", label: "Barrera que quieres prever", hint: "Opcional. En abstracto, por ejemplo: dificultad en la decodificación lectora. Nada de alumnos concretos.", type: "area"},
+    {id: "modo", label: "Modo de uso", type: "mode"}
+   ],
+   build: v => lines([
+    "Actúa como asesor didáctico para docentes de " + (v.etapa || "") + ".",
+    "",
+    "CONTEXTO",
+    ctx(v),
+    "Objetivo de aprendizaje: " + v.objetivo + ".",
+    barrierLine(v),
+    "",
+    "TAREA",
+    "Propón una actividad que trabaje ese objetivo. Incluye título, desarrollo paso a paso con tiempos, materiales y cómo se comprueba lo aprendido.",
+    "",
+    "FORMATO",
+    (v.formato ? "Tipo de actividad: " + v.formato + ". " : "") + "Texto claro con apartados breves, en español de España, que pueda copiar a un documento.",
+    "",
+    "CRITERIOS",
+    bullets(["Diseña desde el DUA: ofrece desde el principio varias formas de implicación, de representación de la información y de acción y expresión, sin crear una versión aparte para nadie.", ...COMMON_CRIT, "Al final, dame una lista breve de lo que debo verificar antes de usarla en el aula."]),
+    "",
+    modeLine(v.modo)]),
+   check: ["Contrasta los datos, fechas y referencias del texto generado.", "Comprueba que la actividad mantiene tu objetivo y el tono corresponde a la edad.", "Revisa que los ejemplos no contienen datos reales del alumnado."]},
+
+  {id: "adaptar", title: "Adaptar una actividad que ya tengo", desc: "Niveles de lectura, apoyos, pasos, andamiaje",
+   fields: [
+    {id: "etapa", label: "Etapa", ph: "Educación Primaria", type: "text", req: true},
+    {id: "nivel", label: "Nivel", ph: "3.º", type: "text", req: true},
+    {id: "area", label: "Área o materia", type: "text"},
+    {id: "objetivo", label: "Objetivo que debe seguir logrando todo el alumnado", type: "area", req: true},
+    {id: "actividad", label: "Texto de la actividad", hint: "Pégalo aquí, sin nombres ni datos del alumnado", type: "area", req: true},
+    {id: "barrera", label: "Barrera que quieres quitar", hint: "En abstracto. Por ejemplo: dificultad en la comprensión de textos largos.", type: "area", req: true},
+    {id: "tipos", label: "Tipo de adaptación", hint: "Puedes elegir varias", type: "multi", opts: ADAPT_TYPES},
+    {id: "modo", label: "Modo de uso", type: "mode"}
+   ],
+   build: v => {
+    const t = v.tipos || [];
+    const extra = [];
+    if (t.length) extra.push("Tipos de adaptación que quiero: " + t.join(", ") + ".");
+    if (t.includes("Apoyos visuales")) extra.push("No generes pictogramas ni imágenes que imiten sistemas de comunicación aumentativa. Indícame qué pictogramas conviene buscar en ARASAAC (licencia CC BY-NC-SA).");
+    return lines([
+     "Actúa como asesor de diseño universal para el aprendizaje.",
+     "",
+     "CONTEXTO",
+     ctx(v),
+     "Objetivo que todo el alumnado debe seguir logrando: " + v.objetivo + ".",
+     "Barrera del entorno que quiero quitar, descrita en general y sin referirse a ningún alumno ni alumna concretos: " + v.barrera + ".",
+     "",
+     "TAREA",
+     "Adapta la actividad que te pego a continuación para que la misma propuesta sirva a todo el grupo. Prefiero ofrecer opciones dentro de la actividad que una versión aparte.",
+     ...extra,
+     "",
+     "ACTIVIDAD ORIGINAL",
+     v.actividad,
+     "",
+     "FORMATO",
+     "Devuélveme la actividad adaptada y, debajo, una lista breve de qué has cambiado y por qué.",
+     "",
+     "CRITERIOS",
+     bullets(COMMON_CRIT),
+     "",
+     modeLine(v.modo)]);
+   },
+   check: ["Comprueba que la adaptación no rebaja el objetivo ni cambia lo que se evalúa.", "Revisa que el tono no infantiliza.", "Si la medida va ligada a un documento oficial, la revisa el docente responsable y se ajusta a la normativa andaluza vigente.", "Los pictogramas se buscan en ARASAAC, con su licencia."]},
+
+  {id: "cuatrod", title: "Redactar las 4D de mi ficha", desc: "A partir de tus notas, sin inventar nada",
+   fields: [
+    {id: "act", label: "Qué actividad he hecho", hint: "Dos frases", type: "area", req: true},
+    {id: "deleg", label: "Qué hizo la IA y qué hice yo", hint: "Incluye lo que decidiste no delegar", type: "area", req: true},
+    {id: "pedido", label: "Cómo se lo pedí", hint: "Contexto, tarea, formato y criterios, en resumen", type: "area", req: true},
+    {id: "compr", label: "Qué comprobé y qué corregí o descarté", type: "area", req: true},
+    {id: "verif", label: "Qué verifiqué y cómo dejé constancia", type: "area", req: true}
+   ],
+   build: v => lines([
+    "Te paso mis notas sobre cómo he usado la IA en una actividad. Redacta, para la ficha del grupo de trabajo, un párrafo de una o dos frases por cada una de estas cuatro dimensiones: Delegación, Descripción, Discernimiento y Diligencia.",
+    "",
+    "Reglas: usa solo lo que está en mis notas, sin añadir nada que no haya dicho. Si falta información para alguna dimensión, no la rellenes: hazme una pregunta. Escribe en primera persona, en español, con frases directas.",
+    "",
+    "MIS NOTAS",
+    "Actividad: " + v.act,
+    "Qué hizo la IA y qué hice yo: " + v.deleg,
+    "Cómo se lo pedí: " + v.pedido,
+    "Qué comprobé y qué corregí o descarté: " + v.compr,
+    "Qué verifiqué y cómo dejé constancia: " + v.verif]),
+   check: ["Lee los cuatro párrafos y comprueba que dicen lo que de verdad hiciste.", "Si la IA añadió algo que no está en tus notas, bórralo.", "La ficha la firmas tú: el contenido tiene que ser tuyo."]},
+
+  {id: "dua", title: "Relacionar la actividad con el DUA", desc: "En modo aumentación, a partir de lo elaborado",
+   fields: [
+    {id: "etapa", label: "Etapa", ph: "Educación Primaria", type: "text"},
+    {id: "nivel", label: "Nivel", ph: "3.º", type: "text"},
+    {id: "descripcion", label: "Descripción de tu actividad", hint: "La que has escrito en la ficha, sin datos del alumnado", type: "area", req: true}
+   ],
+   build: v => lines([
+    "Actúa como asesor de diseño universal para el aprendizaje (DUA).",
+    ctx(v),
+    "Te paso la descripción de una actividad de aula. Analízala con los tres principios del DUA: implicación, representación, acción y expresión.",
+    "Para cada principio dime qué opciones ofrece ya la actividad y qué podría añadirse para quitar barreras del entorno, sin rebajar el objetivo de aprendizaje y sin infantilizar. Habla de barreras y apoyos, no de carencias del alumnado. Máximo tres frases por principio.",
+    "No cites artículos de normativa: el marco legal lo incluyo yo.",
+    "Cuando termines, pregúntame qué cambiaría y ajusta según mi respuesta. Al final, redáctame tres frases breves, una por principio, que empiecen por «En esta actividad, ».",
+    "",
+    "DESCRIPCIÓN DE LA ACTIVIDAD",
+    v.descripcion]),
+   check: ["Quédate con lo que de verdad aplica a tu actividad: tres frases breves valen más que un párrafo copiado.", "Comprueba que el objetivo de aprendizaje sigue siendo el mismo.", "El marco normativo (Decreto 101/2023, arts. 4.d y 7) ya figura en la ficha; no lo pidas a la IA."]},
+
+  {id: "formatos", title: "Convertir en audio, vídeo, infografía…", desc: "Texto para personalizar en NotebookLM",
+   fields: [
+    {id: "material", label: "Tema o contenido de tus fuentes", type: "area", req: true},
+    {id: "formato", label: "Formato", type: "single", opts: FMT, req: true},
+    {id: "aud", label: "Destinatarios", type: "single", opts: AUD, req: true},
+    {id: "edad", label: "Etapa y nivel", hint: "Opcional", ph: "3.º de Primaria", type: "text"},
+    {id: "durac", label: "Duración o extensión", hint: "Opcional", ph: "5 minutos, una página…", type: "text"},
+    {id: "puntos", label: "Ideas que debe destacar", hint: "Opcional", type: "area"}
+   ],
+   build: v => lines([
+    "Crea un " + (v.formato || "material").toLowerCase() + " dirigido a " + (v.aud || "alumnado").toLowerCase() + (v.edad ? " (" + v.edad + ")" : "") + " sobre: " + v.material + ".",
+    v.durac ? "Duración o extensión: " + v.durac + "." : null,
+    v.puntos ? "Destaca estas ideas: " + v.puntos + "." : null,
+    "Usa solo la información de las fuentes del cuaderno. Si algo no está en las fuentes, no lo añadas.",
+    "Lenguaje claro y acorde a la edad, sin tono infantil, y sin hablar del alumnado en términos de carencia.",
+    "Todo en español. Sin imágenes de personas ni datos de alumnado.",
+    "Si la propuesta incluye un cierre, que sea una pregunta para pensar."]),
+   check: ["Contrasta fechas, cifras, nombres y referencias con tus fuentes: los audios y vídeos generados suelen redondear datos.", "En NotebookLM, el texto va en el panel Studio, en la opción Personalizar del formato elegido.", "Las fuentes del cuaderno no pueden contener datos del alumnado.", "Si lo compartes, indica que se ha elaborado con apoyo de IA."]},
+
+  {id: "canvas", title: "Crear una app con Gemini Canvas", desc: "Cuestionario, juego de repaso o herramienta",
+   fields: [
+    {id: "etapa", label: "Etapa", ph: "Educación Primaria", type: "text", req: true},
+    {id: "nivel", label: "Nivel", ph: "3.º", type: "text", req: true},
+    {id: "area", label: "Área o materia", type: "text", req: true},
+    {id: "objetivo", label: "Objetivo de aprendizaje que trabaja la app", type: "area", req: true},
+    {id: "tipo", label: "Tipo de app", type: "single", opts: ["Cuestionario interactivo", "Juego de repaso", "Explorador o simulador", "Página de consulta", "Herramienta para el docente"], req: true},
+    {id: "funciona", label: "Qué debe hacer la app", hint: "Cómo se usa, qué ve y qué responde quien la usa", type: "area", req: true},
+    {id: "barrera", label: "Barrera que quieres prever", hint: "Opcional. En abstracto, sin alumnos concretos.", type: "area"},
+    {id: "modo", label: "Modo de uso", type: "mode"}
+   ],
+   build: v => lines([
+    "Actúa como desarrollador de materiales educativos. Crea una aplicación web de un solo archivo (HTML, CSS y JavaScript), sin dependencias externas, para usar en el navegador de un móvil o de un ordenador.",
+    "",
+    "CONTEXTO",
+    ctx(v),
+    "Objetivo de aprendizaje que trabaja la app: " + v.objetivo + ".",
+    barrierLine(v),
+    "",
+    "TAREA",
+    "Tipo de app: " + v.tipo + ". Funcionamiento: " + v.funciona,
+    "",
+    "CRITERIOS",
+    bullets([
+     "Diseño universal: ofrece desde el principio varias formas de acceder a la información (texto, apoyo visual sencillo y, si el navegador lo permite, lectura en voz alta) y varias formas de responder, sin crear una versión aparte.",
+     "Accesibilidad: texto grande, buen contraste, botones amplios para pantalla táctil y uso con teclado.",
+     "Privacidad: la app no pide nombre ni ningún dato personal, no guarda respuestas identificables y no envía información a servidores externos.",
+     "Cada respuesta da una retroalimentación que explica el porqué, con un tono que anima sin infantilizar.",
+     "Sin imágenes de personas, sin publicidad y sin marcas.",
+     ...COMMON_CRIT,
+     "Al pie de la app, incluye este texto, sustituyendo el título por el de la app: «[Título] · Grupo de Trabajo “IA en la práctica docente”, CEIP San Fernando, curso 2026/2027 · CC BY-NC-SA 4.0. Elaborado con apoyo de IA generativa; contenido revisado por el profesorado autor.»"
+    ]),
+    "",
+    "Al terminar, dime en una lista breve qué debo probar y verificar antes de usarla con el alumnado.",
+    modeLine(v.modo)]),
+   check: ["Prueba la app entera antes de usarla: todas las opciones, los errores y las respuestas correctas e incorrectas.", "Verifica que los contenidos son correctos y que cada retroalimentación tiene sentido.", "Comprueba que no pide ni guarda datos del alumnado.", "Ábrela en el móvil y mira que se lee bien y se maneja con el dedo.", "Si la compartes con el botón Compartir de Canvas, comprueba antes quién podrá verla.", "Gemini solo se usa si está autorizado para tu caso: confírmalo con la asesoría del CEP.", "Indica que se ha elaborado con apoyo de IA y anótalo en tu ficha."]},
+
+  {id: "revisar", title: "Revisar con criterio un resultado de la IA", desc: "Discernimiento antes de usarlo",
+   fields: [
+    {id: "etapa", label: "Etapa y nivel", ph: "3.º de Primaria", type: "text"},
+    {id: "objetivo", label: "Objetivo de aprendizaje", type: "area", req: true},
+    {id: "texto", label: "Texto que quieres revisar", hint: "Pégalo aquí, sin datos del alumnado", type: "area", req: true}
+   ],
+   build: v => lines([
+    "Actúa como revisor crítico de materiales didácticos. No lo mejores todavía: primero dime qué problemas tiene.",
+    v.etapa ? "Destinatarios: " + v.etapa + "." : null,
+    "Objetivo de aprendizaje: " + v.objetivo + ".",
+    "",
+    "Revisa el texto que te paso y señala, con ejemplos del propio texto:",
+    bullets(["Datos, nombres, cifras o referencias que puedan ser incorrectos o inventados, y que debo comprobar.", "Si rebaja el objetivo de aprendizaje o deja fuera algo esencial.", "Si infantiliza o el tono no corresponde a la edad.", "Si habla del alumnado en términos de lástima o de carencia.", "Si hay sesgos, estereotipos o ejemplos poco inclusivos.", "Qué cambiarías, en una lista corta y ordenada por importancia."]),
+    "Si no estás seguro de algo, dilo.",
+    "",
+    "TEXTO A REVISAR",
+    v.texto]),
+   check: ["Esta revisión con IA no sustituye la tuya: te señala dónde mirar.", "Comprueba tú los datos que marque como dudosos.", "Si el texto lo vas a dar al alumnado, léelo entero antes."]}
+];
+
+function selectNeed(id){
+  state.need = id;
+  renderPrompts();
+  setTimeout(() => { const f = $("#pform"); if (f) f.scrollIntoView({block: "start"}); }, 30);
+}
+function renderPrompts(){
+  const box = $("#view-prompts");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Generador de prompts"}));
+  box.append(el("p", {class: "sub", text: "Elige lo que necesitas, rellena los huecos y copia el prompt en una herramienta de IA autorizada."}));
+  box.append(el("p", {class: "notice", text: "Nada de lo que escribas aquí se envía a ninguna IA: el prompt se monta en tu móvil. Antes de pegarlo en una herramienta, comprueba que no lleva datos del alumnado."}));
+  const needs = el("div", {class: "needs", role: "group", "aria-label": "Qué necesitas"});
+  NEEDS.forEach(n => needs.append(el("button", {class: "need", "aria-pressed": state.need === n.id ? "true" : "false", onclick: () => selectNeed(n.id)}, el("strong", {}, el("em", {"aria-hidden": "true", style: "font-style:normal", text: (NEED_EMOJI[n.id] || "✨") + " "}), n.title), el("span", {text: n.desc}))));
+  box.append(needs);
+  if (!state.need) return;
+  const need = NEEDS.find(n => n.id === state.need);
+  const vals = {modo: "aum", tipos: []};
+  const form = el("div", {id: "pform"});
+  form.append(el("h2", {text: need.title}));
+  need.fields.forEach(f => {
+    const wrap = el("div", {class: "field"});
+    if (f.type === "text" || f.type === "area"){
+      const id = "f-" + f.id;
+      wrap.append(el("label", {for: id}, f.label + (f.req ? " *" : ""), f.hint ? el("span", {class: "hint", text: f.hint}) : null));
+      const inp = f.type === "text" ? el("input", {type: "text", id, placeholder: f.ph || ""}) : el("textarea", {id, placeholder: f.ph || ""});
+      const flag = el("div", {class: "flag", hidden: true, role: "status"});
+      inp.addEventListener("input", () => {
+        vals[f.id] = inp.value.trim();
+        const fl = privacyFlags(inp.value);
+        flag.hidden = !fl.length;
+        flag.textContent = fl.length ? "Revisa: " + fl.join(" ") : "";
+      });
+      wrap.append(inp, flag);
+    } else if (f.type === "mode"){
+      wrap.append(el("span", {class: "lab", text: f.label}));
+      const row = el("div", {class: "chips"});
+      MODES.forEach(m => {
+        const b = el("button", {class: "chip", "aria-pressed": m.id === vals.modo ? "true" : "false", onclick: () => {
+          vals.modo = m.id;
+          row.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+        }, text: m.label});
+        row.append(b);
+      });
+      wrap.append(row);
+    } else if (f.type === "multi" || f.type === "single"){
+      wrap.append(el("span", {class: "lab"}, f.label + (f.req ? " *" : ""), f.hint ? el("span", {class: "hint", text: f.hint}) : null));
+      const row = el("div", {class: "chips"});
+      f.opts.forEach(o => {
+        const b = el("button", {class: "chip", "aria-pressed": "false", onclick: () => {
+          if (f.type === "multi"){
+            const on = b.getAttribute("aria-pressed") !== "true";
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+            vals.tipos = [...row.querySelectorAll(".chip")].filter(c => c.getAttribute("aria-pressed") === "true").map(c => c.textContent);
+          } else {
+            vals[f.id] = o;
+            row.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+          }
+        }, text: o});
+        row.append(b);
+      });
+      wrap.append(row);
+    }
+    form.append(wrap);
+  });
+  const msg = el("div", {class: "flag", hidden: true, role: "alert"});
+  const out = el("div", {id: "pout"});
+  form.append(el("div", {class: "acts"}, el("button", {class: "btn", onclick: () => {
+    const missing = need.fields.filter(f => f.req && !vals[f.id]).map(f => f.label);
+    if (missing.length){
+      msg.hidden = false; msg.textContent = "Falta por rellenar: " + missing.join(", ") + ".";
+      out.replaceChildren(); return;
+    }
+    msg.hidden = true;
+    const text = need.build(vals);
+    const allText = Object.values(vals).filter(x => typeof x === "string").join("\n");
+    const fl = privacyFlags(allText);
+    const pre = el("pre", {class: "out", id: "ptext", text});
+    const copy = el("button", {class: "btn", onclick: async () => {
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch(e){
+        try { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); ok = document.execCommand("copy"); } catch(e2){}
+      }
+      copy.textContent = ok ? "Copiado" : "Selecciona el texto y cópialo";
+      setTimeout(() => { copy.textContent = "Copiar prompt"; }, 2200);
+    }, text: "Copiar prompt"});
+    out.replaceChildren(
+      el("h3", {text: "Tu prompt", style: "margin:20px 0 8px"}),
+      fl.length ? el("div", {class: "flag", style: "margin:0 0 10px"}, "Antes de copiarlo, revisa: " + fl.join(" ")) : null,
+      pre,
+      el("div", {class: "acts"}, copy),
+      el("h3", {text: "Qué comprobar antes de usarlo", style: "margin:20px 0 4px"}),
+      el("ul", {class: "check-list"}, need.check.map(c => el("li", {text: c}))),
+      el("p", {class: "tool-note", style: "margin-top:12px", text: "Pégalo solo en una herramienta autorizada por la Consejería. Y si usas el resultado en una ficha, anota qué parte hizo la IA."})
+    );
+    out.scrollIntoView({block: "start", behavior: "smooth"});
+  }, text: "Generar prompt"})));
+  form.append(msg, out);
+  box.append(form);
+}
+
+/* ===== DUDAS ===== */
+const TOPICS = ["Ficha", "4D", "DUA", "Classroom", "Herramientas", "Otra"];
+async function renderDudas(){
+  const box = $("#view-dudas");
+  box.replaceChildren();
+  box.append(el("h2", {text: "Dudas del grupo"}));
+  box.append(el("p", {class: "sub", text: "Pregunta aquí y responde a los demás: la respuesta le sirve a todo el grupo."}));
+  box.append(el("p", {class: "notice", text: "No escribas nombres ni datos del alumnado. Si tu duda parte de un caso, descríbelo en general."}));
+
+  let db = null, user = null, uid = null, canEdit = false, canWrite = true;
+  const api = window.claude;
+  try { if (api && api.use) db = await api.use("db"); } catch(e){}
+  try {
+    if (api && api.use){
+      user = await api.use("user");
+      if (user){ uid = await user.id(); canEdit = !!(user.canEdit && user.canEdit()); try { const w = user.can ? await user.can("data.write") : null; canWrite = w !== false; } catch(e){} }
+    }
+  } catch(e){}
+
+  let topic = "Otra";
+  const ta = el("textarea", {class: "search", style: "min-height:110px;resize:vertical", maxlength: "600", placeholder: "Escribe tu duda", "aria-label": "Escribe tu duda"});
+  const counter = el("div", {class: "counter", text: "0 / 600"});
+  const flag = el("div", {class: "flag", hidden: true, role: "status"});
+  ta.addEventListener("input", () => {
+    counter.textContent = ta.value.length + " / 600";
+    const fl = privacyFlags(ta.value);
+    flag.hidden = !fl.length; flag.textContent = fl.length ? "Revisa: " + fl.join(" ") : "";
+  });
+  const chips = el("div", {class: "chips", style: "margin:10px 0"});
+  TOPICS.forEach(t => {
+    const b = el("button", {class: "chip", "aria-pressed": t === topic ? "true" : "false", onclick: () => { topic = t; chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false")); }, text: t});
+    chips.append(b);
+  });
+  const status = el("p", {class: "tool-note", role: "status"});
+  const list = el("div", {id: "dlist"});
+  const compose = el("div", {}, el("label", {class: "lab", style: "display:block;font-weight:700;margin-bottom:6px", text: "Tema"}), chips, ta, counter, flag);
+
+  if (db && canWrite){
+    compose.append(el("div", {class: "acts"}, el("button", {class: "btn", onclick: async () => {
+      const text = ta.value.trim();
+      if (!text){ status.textContent = "Escribe la duda antes de publicarla."; return; }
+      try {
+        await db.collection("dudas").add({text, topic, author: uid || "", ts: Date.now(), resolved: false});
+        ta.value = ""; counter.textContent = "0 / 600"; flag.hidden = true; status.textContent = "Duda publicada.";
+      } catch(e){ status.textContent = "No se ha podido publicar. Prueba de nuevo en un momento."; }
+    }, text: "Publicar duda"})));
+  } else {
+    compose.append(el("div", {class: "acts"}, el("button", {class: "btn", onclick: async () => {
+      const text = "[Duda sobre " + topic + "] " + ta.value.trim();
+      let ok = false; try { await navigator.clipboard.writeText(text); ok = true; } catch(e){}
+      status.textContent = ok ? "Copiada. Pégala en el foro de Classroom." : "Selecciona el texto y cópialo para pegarlo en el foro de Classroom.";
+    }, text: "Copiar para el foro de Classroom"})));
+    compose.append(el("p", {class: "tool-note", style: "margin-top:8px", text: db ? "Tu cuenta no tiene permiso para escribir aquí. Copia la duda y publícala en el foro de Classroom." : "Las dudas compartidas funcionan al abrir la guía desde tu cuenta. Mientras tanto, copia la duda y publícala en el foro de Classroom."}));
+  }
+  box.append(compose, status, el("h2", {text: "Preguntas del grupo"}), list);
+  if (!db){ list.append(el("p", {class: "empty", text: "Aquí aparecerán las dudas del grupo cuando abras la guía desde tu cuenta."})); return; }
+
+  let dudas = [], resp = [], names = {}, showResolved = false;
+  const when = ts => ts ? new Date(ts).toLocaleDateString("es-ES", {day: "numeric", month: "short"}) : "";
+  const who = id => names[id] || "Participante";
+  async function resolveNames(){
+    if (!user) return;
+    const ids = [...new Set([...dudas, ...resp].map(x => x.author).filter(Boolean))];
+    if (!ids.length) return;
+    try { const ps = await user.profiles(ids); ids.forEach(i => { if (ps[i] && ps[i].name) names[i] = ps[i].name; }); } catch(e){}
+  }
+  function draw(){
+    list.replaceChildren();
+    const toggle = el("label", {style: "display:flex;gap:8px;align-items:center;min-height:44px"}, el("input", {type: "checkbox", style: "width:22px;height:22px", ...(showResolved ? {checked: true} : {}), onchange: e => { showResolved = e.target.checked; draw(); }}), "Mostrar también las resueltas");
+    list.append(toggle);
+    const vis = dudas.filter(d => showResolved || !d.resolved);
+    if (!vis.length) list.append(el("p", {class: "empty", text: dudas.length ? "No hay dudas abiertas. Todas están resueltas." : "Todavía no hay dudas. La primera puede ser la tuya."}));
+    vis.forEach(d => {
+      const answers = resp.filter(r => r.dudaId === d.id);
+      const art = el("article", {class: "dq"});
+      art.append(el("div", {class: "meta"}, el("span", {class: "badge", text: d.topic || "Otra"}), d.resolved ? el("span", {class: "badge ok", text: "Resuelta"}) : null, who(d.author) + ", " + when(d.ts)));
+      art.append(el("p", {class: "txt", text: d.text}));
+      answers.forEach(a => art.append(el("div", {class: "ans"}, el("div", {class: "meta", text: who(a.author) + ", " + when(a.ts)}), el("p", {class: "txt", style: "margin:2px 0 0", text: a.text}))));
+      const acts = el("div", {style: "display:flex;flex-wrap:wrap;gap:4px"});
+      if (canWrite){
+        const input = el("input", {type: "text", maxlength: "500", placeholder: "Escribe una respuesta", "aria-label": "Escribe una respuesta"});
+        const send = el("button", {class: "btn", onclick: async () => {
+          const text = input.value.trim(); if (!text) return;
+          try { await db.collection("respuestas").add({dudaId: d.id, text, author: uid || "", ts: Date.now()}); input.value = ""; } catch(e){ status.textContent = "No se ha podido enviar la respuesta."; }
+        }, text: "Responder"});
+        art.append(el("div", {class: "reply"}, input, send));
+        if (canEdit || (uid && d.author === uid)){
+          acts.append(el("button", {class: "mini", onclick: async () => { try { await db.doc("dudas/" + d.id).update({resolved: !d.resolved}); } catch(e){} }, text: d.resolved ? "Reabrir" : "Marcar como resuelta"}));
+          acts.append(el("button", {class: "mini", onclick: async () => {
+            if (!confirm("¿Borrar esta duda y sus respuestas?")) return;
+            try { for (const a of answers) await db.doc("respuestas/" + a.id).delete(); await db.doc("dudas/" + d.id).delete(); } catch(e){}
+          }, text: "Borrar"}));
+        }
+      }
+      art.append(acts);
+      list.append(art);
+    });
+  }
+  const err = e => { status.textContent = "No se pueden cargar las dudas ahora mismo."; };
+  db.collection("dudas").orderBy("ts", "desc").limit(100).onSnapshot(async s => { dudas = s.docs.map(x => ({id: x.id, ...x.data()})); await resolveNames(); draw(); }, err);
+  db.collection("respuestas").orderBy("ts", "asc").limit(500).onSnapshot(async s => { resp = s.docs.map(x => ({id: x.id, ...x.data()})); await resolveNames(); draw(); }, err);
+}
+
+
+/* ===== arranque ===== */
+["#homebtn", "#fab", "#endhomebtn"].forEach(s => $(s).addEventListener("click", () => show("home")));
+renderHome();
+renderRutas();
+renderFicha();
+renderConceptos();
+renderPrompts();
+renderHerr();
+renderDudas();
+renderFechas();
+const h = (location.hash || "").slice(1);
+show(SECTIONS.some(t => t.id === h) ? h : "home");
+</script>
+</body>
+</html>
